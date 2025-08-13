@@ -28,12 +28,13 @@ def get_urls_from_html(html, base_url):
 
 
 class AsyncCrawler:
-    def __init__(self, base_url):
+    def __init__(self, base_url, max_concurrency, max_pages):
         self.base_url = base_url
         self.base_domain = urlparse(base_url).netloc
         self.pages = {}
         self.lock = asyncio.Lock()
-        self.max_concurrency = 3
+        self.max_concurrency = max_concurrency
+        self.max_pages = max_pages
         self.semaphore = asyncio.Semaphore(self.max_concurrency)
         self.session = None
 
@@ -75,6 +76,11 @@ class AsyncCrawler:
         if current_url_obj.netloc != self.base_domain:
             return
 
+        async with self.lock:
+            if len(self.pages) >= self.max_pages:
+                print("Reached maximum number of pages to crawl.")
+                return
+
         normalized_url = normalize_url(current_url)
 
         is_new = await self.add_page_visit(normalized_url)
@@ -103,6 +109,6 @@ class AsyncCrawler:
         return self.pages
 
 
-async def crawl_site_async(base_url):
-    async with AsyncCrawler(base_url) as crawler:
+async def crawl_site_async(base_url, max_concurrency, max_pages):
+    async with AsyncCrawler(base_url, max_concurrency, max_pages) as crawler:
         return await crawler.crawl()
