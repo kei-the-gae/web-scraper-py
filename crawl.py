@@ -1,5 +1,6 @@
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
+import requests
 
 
 def normalize_url(url):
@@ -24,3 +25,18 @@ def get_urls_from_html(html, base_url):
 
     return urls
 
+
+def get_html(url):
+    try:
+        res = requests.get(url)
+    except Exception as e:
+        raise Exception(f"network error while fetching {url}: {e}")
+
+    if res.status_code > 399:
+        raise Exception(f"got HTTP error: {res.status_code} {res.reason}")
+
+    content_type = res.headers.get("content-type", "")
+    if "text/html" not in content_type:
+        raise Exception(f"got non-HTML response: {content_type}")
+
+    return res.text
