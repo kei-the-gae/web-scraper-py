@@ -1,8 +1,9 @@
 import sys
-from crawl import crawl_page
+import asyncio
+from crawl import crawl_site_async
 
 
-def main():
+async def main():
     args = sys.argv
     if len(args) < 2:
         print("no website provided")
@@ -13,13 +14,9 @@ def main():
 
     base_url = args[1]
 
-    print(f"starting crawl of: {base_url}...")
+    print(f"Starting async crawl of: {base_url}")
 
-    try:
-        pages = crawl_page(base_url)
-    except Exception as err:
-        print(f"Error fetching HTML from {base_url}: {str(err)}")
-        sys.exit(1)
+    pages = await crawl_site_async(base_url)
 
     print(pages)
 
@@ -27,4 +24,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
