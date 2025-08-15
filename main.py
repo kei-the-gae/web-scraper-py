@@ -1,6 +1,7 @@
 import sys
 import asyncio
 from crawl import crawl_site_async
+from report import print_report
 
 
 async def main():
@@ -28,7 +29,7 @@ async def main():
 
     pages = await crawl_site_async(base_url, max_concurrency, max_pages)
 
-    print(pages)
+    print_report(pages, base_url)
 
     sys.exit(0)
 
